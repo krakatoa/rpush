@@ -24,6 +24,11 @@ module Rpush
           rescue Rpush::DeliveryError => error
             mark_failed(error.code, error.description)
             raise
+          rescue Exception => error
+            @notification.registration_ids.each {|registration_id|
+              reflect(:gcm_failed_to_recipient, @notification, error.inspect, registration_id)
+            }
+            raise
           end
         end
 
