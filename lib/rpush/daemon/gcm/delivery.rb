@@ -19,9 +19,12 @@ module Rpush
 
         def perform
           handle_response(do_post)
-        rescue StandardError => error
+        rescue Rpush::DeliveryError => error
           mark_failed(error)
           raise
+        rescue StandardError => error
+          mark_failed(error)
+          raise Rpush::DeliveryError.new(:standard, @notification.id, error.inspect)
         ensure
           @batch.notification_processed
         end
